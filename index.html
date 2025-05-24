@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project</title>
+    <title>Intekhaab</title>
     <script src="assets/tailwind.js"></script> 
     <style>
         body {
@@ -311,20 +311,25 @@
         });
         
         changeVideoButton.addEventListener('click', () => {
-            // Determine the correct next stage based on the video that was interrupted
-            if (currentPlayingVideoKey === 'initial') {
+            videoPlayer.pause(); // Ensure video is paused before showing overlays
+
+            // Determine which set of choices to show.
+            // This button should allow the user to go back to the relevant decision point
+            // for the video segment they were watching.
+            if (currentPlayingVideoKey === 'optionA' || currentPlayingVideoKey === 'optionB') {
+                // If watching Line A or Line B, show the A/B choice overlay.
                 currentVideoStage = 'AB';
-            } else if (currentPlayingVideoKey === 'optionA') {
+            } else if (currentPlayingVideoKey === 'optionC' || currentPlayingVideoKey === 'optionD') {
+                // If watching an end video from path A (C or D), show the C/D choice overlay.
                 currentVideoStage = 'CD';
-            } else if (currentPlayingVideoKey === 'optionB') {
+            } else if (currentPlayingVideoKey === 'optionE' || currentPlayingVideoKey === 'optionF') {
+                // If watching an end video from path B (E or F), show the E/F choice overlay.
                 currentVideoStage = 'EF';
-            } else if (['optionC', 'optionD', 'optionE', 'optionF'].includes(currentPlayingVideoKey)) {
-                currentVideoStage = 'END';
             }
-            // No explicit 'else' as changeVideoButton visibility is managed;
-            // if it's visible, currentPlayingVideoKey should be one of the above.
+            // Note: currentPlayingVideoKey will not be 'initial' here because
+            // changeVideoButton is hidden when the initial video is playing.
+
             showOverlaysForCurrentStage();
-            videoPlayer.pause(); // Ensure video is paused when overlays are shown
         });
 
         videoPlayer.addEventListener('play', () => {
