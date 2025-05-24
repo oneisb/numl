@@ -311,23 +311,15 @@
         });
         
         changeVideoButton.addEventListener('click', () => {
-            videoPlayer.pause(); // Ensure video is paused before showing overlays
+            videoPlayer.pause();
 
-            // Determine which set of choices to show.
-            // This button should allow the user to go back to the relevant decision point
-            // for the video segment they were watching.
             if (currentPlayingVideoKey === 'optionA' || currentPlayingVideoKey === 'optionB') {
-                // If watching Line A or Line B, show the A/B choice overlay.
                 currentVideoStage = 'AB';
             } else if (currentPlayingVideoKey === 'optionC' || currentPlayingVideoKey === 'optionD') {
-                // If watching an end video from path A (C or D), show the C/D choice overlay.
                 currentVideoStage = 'CD';
             } else if (currentPlayingVideoKey === 'optionE' || currentPlayingVideoKey === 'optionF') {
-                // If watching an end video from path B (E or F), show the E/F choice overlay.
                 currentVideoStage = 'EF';
             }
-            // Note: currentPlayingVideoKey will not be 'initial' here because
-            // changeVideoButton is hidden when the initial video is playing.
 
             showOverlaysForCurrentStage();
         });
@@ -358,19 +350,18 @@
 
             if (currentPlayingVideoKey === 'initial') {
                 currentVideoStage = 'AB';
-            } else if (currentPlayingVideoKey === 'optionA') { // After A, next is CD
+            } else if (currentPlayingVideoKey === 'optionA') {
                 currentVideoStage = 'CD';
-            } else if (currentPlayingVideoKey === 'optionB') { // After B, next is EF
+            } else if (currentPlayingVideoKey === 'optionB') { 
                 currentVideoStage = 'EF';
-            } else if (['optionC', 'optionD', 'optionE', 'optionF'].includes(currentPlayingVideoKey)) { // After C, D, E, or F, it's the END
+            } else if (['optionC', 'optionD', 'optionE', 'optionF'].includes(currentPlayingVideoKey)) {
                 currentVideoStage = 'END';
             } else {
-                // Fallback for unexpected currentPlayingVideoKey
                 currentVideoStage = 'INITIAL';
                 initialVideoHasPlayed = false;
                 showInitialPlayScreen();
                 updatePlayPauseButtonVisuals();
-                return; // Exit to prevent showing overlays for 'INITIAL' stage via showOverlaysForCurrentStage
+                return; 
             }
             showOverlaysForCurrentStage();
             updatePlayPauseButtonVisuals();
