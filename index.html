@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project</title>
+    <script src="assets/tailwind.js"></script> 
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        video {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+        }
+        .video-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+            border-radius: 0; 
+            box-shadow: none; 
+        }
+    </style>
+</head>
+<body class="bg-black flex items-center justify-center min-h-screen p-4">
+        <div class="video-wrapper mb-6"> 
+            <video id="videoPlayer" width="1920" height="1080" preload="metadata"></video> 
+            <button id="initialPlayButton" aria-label="Play Initial Video" class="absolute inset-0 m-auto group flex flex-col items-center justify-center p-8 sm:p-10 md:p-12 rounded-lg bg-slate-900/70 hover:bg-indigo-700/80 focus:outline-none focus:ring-4 focus:ring-indigo-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-3/5 sm:w-1/2 md:w-2/5 max-w-md z-30">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-20 h-20 sm:w-24 sm:h-24 mb-4 text-indigo-300 group-hover:text-white transition-colors duration-300">
+                    <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-xl sm:text-2xl font-semibold text-white">Intekhaab</span>
+                <span class="text-sm sm:text-base text-gray-300 group-hover:text-indigo-100 transition-colors duration-300 mt-2">Click to begin the experience</span>
+            </button>
+            <button id="customPlayPauseButton" aria-label="Play video" class="absolute inset-0 m-auto w-24 h-24 bg-slate-900/70 hover:bg-slate-900 text-white rounded-full flex items-center justify-center transition-opacity duration-300 group focus:outline-none focus:ring-4 focus:ring-indigo-500/50 z-20 hidden">
+                <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 group-hover:scale-110 transition-transform">
+                    <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                </svg>
+                <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 hidden group-hover:scale-110 transition-transform">
+                    <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75.75V18a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Zm9 0a.75.75 0 0 1 .75.75V18a.75.75 0 0 1-1.5 0V6a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <button id="changeVideoButton" aria-label="Change Video" class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-slate-700/80 hover:bg-slate-900/90 text-white p-1.5 sm:p-2 rounded-md shadow-md transition-all duration-300 z-20 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+            </button>            
+            <div id="videoOverlaysContainer" class="absolute inset-0 flex flex-col sm:flex-row items-center justify-around p-4 bg-black/70 rounded-xl z-10 invisible opacity-0 transition-opacity duration-500 ease-in-out">
+                <button id="overlayOptionA" data-video-key="optionA" class="group flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-indigo-700/80 focus:outline-none focus:ring-4 focus:ring-indigo-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-indigo-300 group-hover:text-white transition-colors duration-300">
+                        <path d="M4.513 3.005c.918-.56 2.06-.56 2.978 0l9.013 5.513c.918.56.918 1.927 0 2.486l-9.013 5.513c-.918.56-2.06.56-2.978 0L3.32 15.442a1.499 1.499 0 0 1-.807-1.243V9.806c0-.504.248-.99.675-1.277L4.513 3.005ZM13.5 6.75v10.5a.75.75 0 0 0 1.14.642l6.002-3.667a3.003 3.003 0 0 0-1.118-5.333l-4.191-1.479a.75.75 0 0 0-.833.337Z" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video A</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-indigo-100 transition-colors duration-300 mt-1">The Adventurous Choice</span>
+                </button>
+                <button id="overlayOptionB" data-video-key="optionB" class="group flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-purple-700/80 focus:outline-none focus:ring-4 focus:ring-purple-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-purple-300 group-hover:text-white transition-colors duration-300">
+                         <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video B</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-purple-100 transition-colors duration-300 mt-1">The Scenic Route</span>
+                </button>
+                <button id="overlayOptionC" data-video-key="optionC" class="group hidden flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-teal-700/80 focus:outline-none focus:ring-4 focus:ring-teal-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-teal-300 group-hover:text-white transition-colors duration-300">
+                        <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM9.002 8.248a.75.75 0 0 0-.502.697v6.108a.75.75 0 0 0 .502.697l4.503 2.251a.75.75 0 0 0 .998-.697V10.5a.75.75 0 0 0-.502-.697l-4.503-2.251Z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video C</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-teal-100 transition-colors duration-300 mt-1">A New Chapter</span>
+                </button>
+                <button id="overlayOptionD" data-video-key="optionD" class="group hidden flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-cyan-700/80 focus:outline-none focus:ring-4 focus:ring-cyan-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-cyan-300 group-hover:text-white transition-colors duration-300">
+                        <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM6 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM7.5 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM9 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM10.5 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM13.5 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM15 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM16.5 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18 15.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5ZM19.5 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM2.25 9.75A.75.75 0 0 0 3 9V7.5A2.25 2.25 0 0 1 5.25 5.25h13.5A2.25 2.25 0 0 1 21 7.5V16.5A2.25 2.25 0 0 1 18.75 18.75H5.25A2.25 2.25 0 0 1 3 16.5V15a.75.75 0 0 0-1.5 0v1.5A3.75 3.75 0 0 0 5.25 20.25h13.5A3.75 3.75 0 0 0 22.5 16.5V7.5A3.75 3.75 0 0 0 18.75 3.75H5.25A3.75 3.75 0 0 0 1.5 7.5V9a.75.75 0 0 0 .75.75Z" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video D</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-cyan-100 transition-colors duration-300 mt-1">The Path Less Traveled</span>
+                </button>
+                <button id="overlayOptionE" data-video-key="optionE" class="group hidden flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-rose-700/80 focus:outline-none focus:ring-4 focus:ring-rose-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-rose-300 group-hover:text-white transition-colors duration-300">
+                        <path d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.576a.75.75 0 0 0 .5.707A9.735 9.735 0 0 0 6 21a9.707 9.707 0 0 0 5.25-1.533v-1.267a7.5 7.5 0 0 1-4.5 1.3A7.5 7.5 0 0 1 3.75 18.12V5.88A7.5 7.5 0 0 1 6.75 4.5a7.5 7.5 0 0 1 4.5 1.3V4.533ZM12.75 4.533V18.25a.75.75 0 0 0 1.134.64L22.35 13.248a.75.75 0 0 0 0-1.292L13.884 6.31a.75.75 0 0 0-1.134-.64v-1.138Z" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video E</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-rose-100 transition-colors duration-300 mt-1">The Grand Finale</span>
+                </button>
+                <button id="overlayOptionF" data-video-key="optionF" class="group hidden flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 rounded-lg bg-slate-800/60 hover:bg-amber-700/80 focus:outline-none focus:ring-4 focus:ring-amber-500/70 transition-all duration-300 ease-in-out transform hover:scale-105 w-4/5 sm:w-2/5 max-w-xs my-2 sm:my-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-amber-300 group-hover:text-white transition-colors duration-300">
+                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="text-lg sm:text-xl font-semibold text-white">Play Video F</span>
+                    <span class="text-xs sm:text-sm text-gray-300 group-hover:text-amber-100 transition-colors duration-300 mt-1">A Secret Path</span>
+                </button>
+            </div>
+            <div id="endMessageContainer" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-slate-900/90 rounded-xl z-10 hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-20 h-20 mb-6 text-green-400">
+                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.06-1.06l-3.002 3.001-1.502-1.502a.75.75 0 0 0-1.06 1.061l2.032 2.031a.75.75 0 0 0 1.06 0l3.532-3.53Z" clip-rule="evenodd" />
+                </svg>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-3">Thank You!</h2>
+                <p class="text-lg sm:text-xl text-gray-300">You've completed the video journey.</p>
+            </div>
+        </div>
+
+    <audio id="backgroundMusic" loop preload="auto"></audio>
+
+    <script>
+        const videoPlayer = document.getElementById('videoPlayer');
+        const initialPlayButton = document.getElementById('initialPlayButton');
+        const videoOverlaysContainer = document.getElementById('videoOverlaysContainer');
+        const overlayOptionA = document.getElementById('overlayOptionA');
+        const overlayOptionB = document.getElementById('overlayOptionB');
+        const overlayOptionC = document.getElementById('overlayOptionC');
+        const overlayOptionD = document.getElementById('overlayOptionD');
+        const overlayOptionE = document.getElementById('overlayOptionE');
+        const overlayOptionF = document.getElementById('overlayOptionF');
+        const customPlayPauseButton = document.getElementById('customPlayPauseButton');
+        const changeVideoButton = document.getElementById('changeVideoButton');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const endMessageContainer = document.getElementById('endMessageContainer');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        const MUSIC_SRC = "assets/music.mp3"; 
+        const TARGET_MUSIC_VOLUME = 1; 
+        const MUSIC_FADE_DURATION = 1000; 
+
+        const allOverlayButtons = [overlayOptionA, overlayOptionB, overlayOptionC, overlayOptionD, overlayOptionE, overlayOptionF];
+
+        const videoSources = {
+            initial: 'https://github.com/oneisb/numl/raw/refs/heads/main/assets/Main.mp4', // Main
+            optionA: 'assets/LINEA.mp4', // Line A
+            optionB: 'assets/LINEB.mp4', // Line B
+            optionC: 'assets/End1.mp4', // A > End1
+            optionD: 'assets/End2.mp4', // A > End2
+            optionE: 'assets/End1.mp4', // B > End1
+            optionF: 'assets/End2.mp4'  // B > End2
+        };
+
+        let currentVideoStage = 'INITIAL'; 
+        let currentPlayingVideoKey = null;
+        let initialVideoHasPlayed = false;
+        let musicFadeInterval = null;
+
+        function fadeInMusic() {
+            if (!backgroundMusic.src) {
+                backgroundMusic.src = MUSIC_SRC;
+                backgroundMusic.load();
+            }
+            clearInterval(musicFadeInterval);
+            backgroundMusic.play().catch(e => console.error("Error playing background music:", e));
+            let currentVolume = backgroundMusic.volume;
+            const step = (TARGET_MUSIC_VOLUME - currentVolume) / (MUSIC_FADE_DURATION / 50); 
+
+            musicFadeInterval = setInterval(() => {
+                currentVolume += step;
+                if ((step > 0 && currentVolume >= TARGET_MUSIC_VOLUME) || (step < 0 && currentVolume <= TARGET_MUSIC_VOLUME)) {
+                    backgroundMusic.volume = TARGET_MUSIC_VOLUME;
+                    clearInterval(musicFadeInterval);
+                } else {
+                    backgroundMusic.volume = currentVolume;
+                }
+            }, 50);
+        }
+
+        function fadeOutMusic(pauseAfterFade = true) {
+            clearInterval(musicFadeInterval);
+            if (backgroundMusic.paused || backgroundMusic.volume === 0) {
+                if (pauseAfterFade) backgroundMusic.pause();
+                backgroundMusic.volume = 0; 
+                return;
+            }
+
+            let currentVolume = backgroundMusic.volume;
+            const step = currentVolume / (MUSIC_FADE_DURATION / 50); 
+
+            musicFadeInterval = setInterval(() => {
+                currentVolume -= step;
+                if (currentVolume <= 0) {
+                    backgroundMusic.volume = 0;
+                    if (pauseAfterFade) {
+                        backgroundMusic.pause();
+                    }
+                    clearInterval(musicFadeInterval);
+                } else {
+                    backgroundMusic.volume = currentVolume;
+                }
+            }, 50);
+        }
+
+
+
+        function updatePlayPauseButtonVisuals() {
+            if (videoPlayer.paused || videoPlayer.ended) {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                customPlayPauseButton.setAttribute('aria-label', 'Play video');
+            } else {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                customPlayPauseButton.setAttribute('aria-label', 'Pause video');
+            }
+        }
+
+        function hideAllControlsAndOverlays() {
+            initialPlayButton.classList.add('hidden');
+            customPlayPauseButton.classList.add('hidden');
+            changeVideoButton.classList.add('hidden');
+            endMessageContainer.classList.add('hidden');
+
+            if (videoOverlaysContainer.classList.contains('opacity-100')) { 
+                videoOverlaysContainer.classList.remove('opacity-100');
+                videoOverlaysContainer.classList.add('opacity-0');
+
+                const onHideTransitionEnd = () => {
+                    videoOverlaysContainer.classList.add('invisible');
+                };
+                videoOverlaysContainer.addEventListener('transitionend', onHideTransitionEnd, { once: true });
+            } else {
+                videoOverlaysContainer.classList.add('invisible');
+                videoOverlaysContainer.classList.add('opacity-0');
+                videoOverlaysContainer.classList.remove('opacity-100'); 
+            }
+            allOverlayButtons.forEach(btn => btn.classList.add('hidden')); 
+        }
+
+
+        function showInitialPlayScreen() {
+            hideAllControlsAndOverlays();
+            initialPlayButton.classList.remove('hidden');
+            videoPlayer.poster = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+            fadeOutMusic();
+        }
+
+        function showEndScreen() {
+            hideAllControlsAndOverlays();
+            endMessageContainer.classList.remove('hidden');
+            fadeOutMusic();
+        }
+
+        function showOverlaysForCurrentStage() {
+            videoPlayer.pause();
+            hideAllControlsAndOverlays(); 
+
+            if (currentVideoStage === 'END') {
+                showEndScreen();
+                return; 
+            }
+
+            videoOverlaysContainer.classList.remove('invisible'); 
+            
+            requestAnimationFrame(() => {
+                videoOverlaysContainer.classList.add('opacity-100');
+                videoOverlaysContainer.classList.remove('opacity-0');
+            });
+            if (currentVideoStage === 'AB') {
+                overlayOptionA.classList.remove('hidden');
+                overlayOptionB.classList.remove('hidden');
+            } else if (currentVideoStage === 'CD') {
+                overlayOptionC.classList.remove('hidden');
+                overlayOptionD.classList.remove('hidden');
+            } else if (currentVideoStage === 'EF') {
+                overlayOptionE.classList.remove('hidden');
+                overlayOptionF.classList.remove('hidden');
+            }
+            fadeInMusic(); 
+        }
+
+        function loadAndPlayVideo(videoKey) {
+            if (!videoSources[videoKey]) {
+                console.error("Video source not found for key:", videoKey);
+                showOverlaysForCurrentStage(); 
+                return;
+            }
+            currentPlayingVideoKey = videoKey;
+            hideAllControlsAndOverlays(); 
+
+            videoPlayer.src = videoSources[videoKey];
+            videoPlayer.load(); 
+            videoPlayer.play()
+                .then(() => {
+                    if (videoKey === 'initial') initialVideoHasPlayed = true;
+                })
+                .catch(error => {
+                    console.error("Error playing video:", error);
+                    showOverlaysForCurrentStage(); 
+                });
+        }
+        
+        initialPlayButton.addEventListener('click', () => {
+            loadAndPlayVideo('initial');
+        });
+
+        customPlayPauseButton.addEventListener('click', () => {
+            if (videoPlayer.paused || videoPlayer.ended) {
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+        });
+        
+        videoPlayer.addEventListener('click', () => {
+            if (!videoOverlaysContainer.classList.contains('hidden') || !initialPlayButton.classList.contains('hidden') || !endMessageContainer.classList.contains('hidden')) {
+                return;
+            }
+            if (videoPlayer.paused || videoPlayer.ended) {
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+        });
+        
+        changeVideoButton.addEventListener('click', () => {
+            // Determine the correct next stage based on the video that was interrupted
+            if (currentPlayingVideoKey === 'initial') {
+                currentVideoStage = 'AB';
+            } else if (currentPlayingVideoKey === 'optionA') {
+                currentVideoStage = 'CD';
+            } else if (currentPlayingVideoKey === 'optionB') {
+                currentVideoStage = 'EF';
+            } else if (['optionC', 'optionD', 'optionE', 'optionF'].includes(currentPlayingVideoKey)) {
+                currentVideoStage = 'END';
+            }
+            // No explicit 'else' as changeVideoButton visibility is managed;
+            // if it's visible, currentPlayingVideoKey should be one of the above.
+            showOverlaysForCurrentStage();
+            videoPlayer.pause(); // Ensure video is paused when overlays are shown
+        });
+
+        videoPlayer.addEventListener('play', () => {
+            hideAllControlsAndOverlays(); 
+
+            if (initialVideoHasPlayed && currentPlayingVideoKey !== 'initial') {
+                changeVideoButton.classList.remove('hidden');
+            }
+            fadeOutMusic(); 
+            updatePlayPauseButtonVisuals();
+        });
+
+        videoPlayer.addEventListener('pause', () => {
+            updatePlayPauseButtonVisuals();
+            if (initialVideoHasPlayed && currentPlayingVideoKey !== 'initial' &&
+                videoOverlaysContainer.classList.contains('hidden') &&
+                initialPlayButton.classList.contains('hidden') &&
+                endMessageContainer.classList.contains('hidden')) {
+                customPlayPauseButton.classList.remove('hidden');
+            }
+            changeVideoButton.classList.add('hidden');
+        });
+
+        videoPlayer.addEventListener('ended', () => {
+            hideAllControlsAndOverlays();
+
+            if (currentPlayingVideoKey === 'initial') {
+                currentVideoStage = 'AB';
+            } else if (currentPlayingVideoKey === 'optionA') { // After A, next is CD
+                currentVideoStage = 'CD';
+            } else if (currentPlayingVideoKey === 'optionB') { // After B, next is EF
+                currentVideoStage = 'EF';
+            } else if (['optionC', 'optionD', 'optionE', 'optionF'].includes(currentPlayingVideoKey)) { // After C, D, E, or F, it's the END
+                currentVideoStage = 'END';
+            } else {
+                // Fallback for unexpected currentPlayingVideoKey
+                currentVideoStage = 'INITIAL';
+                initialVideoHasPlayed = false;
+                showInitialPlayScreen();
+                updatePlayPauseButtonVisuals();
+                return; // Exit to prevent showing overlays for 'INITIAL' stage via showOverlaysForCurrentStage
+            }
+            showOverlaysForCurrentStage();
+            updatePlayPauseButtonVisuals();
+        });
+
+        allOverlayButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const videoKey = button.dataset.videoKey;
+                if (videoKey) {
+                    loadAndPlayVideo(videoKey);
+                }
+            });
+        });
+
+        videoOverlaysContainer.addEventListener('click', (event) => {
+            if (event.target === videoOverlaysContainer) {
+                hideAllControlsAndOverlays();
+                if (videoPlayer.src && currentPlayingVideoKey) {
+                    videoPlayer.play().catch(e => console.error("Error resuming video:", e));
+                }
+            }
+        });
+
+        window.onload = () => {
+            console.log("Initiating preload for all video sources...");
+            Object.values(videoSources).forEach(srcUrl => {
+                if (srcUrl) {
+                    const tempVideo = document.createElement('video');
+                    tempVideo.src = srcUrl;
+                    tempVideo.preload = 'auto';
+                    tempVideo.load();
+                }
+            });
+
+            backgroundMusic.volume = 0; 
+            videoPlayer.src = videoSources.initial; 
+            videoPlayer.load();
+            
+            currentVideoStage = 'INITIAL';
+            initialVideoHasPlayed = false;
+            showInitialPlayScreen(); 
+            updatePlayPauseButtonVisuals();
+        };
+    </script>
+</body>
+</html>
